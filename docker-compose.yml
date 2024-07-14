@@ -3,10 +3,12 @@ services:
   backend:
     build: .
     ports:
-      - '3000:3000'
+      - '${BACKEND_SERVER_PORT}:${BACKEND_SERVER_PORT}'
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - MONGO_URI=mongodb://mongo:27017/gravedust
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${BACKEND_SERVER_PORT} # Adding this to ensure the backend knows which port to use
     depends_on:
       - mongo
     networks:
@@ -16,7 +18,9 @@ services:
     build:
       context: ./frontend
     ports:
-      - '3001:3000'
+      - '${FRONTEND_PORT}:${FRONTEND_PORT}'
+    environment:
+      - PORT=${FRONTEND_PORT} # Ensure frontend uses the correct port
     depends_on:
       - backend
     networks:
