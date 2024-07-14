@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const axios = require('axios');
 const { Anthropic } = require('@anthropic-ai/sdk');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 app.use(express.json());
@@ -12,6 +12,7 @@ app.use(cors());
 mongoose.connect(process.env.MONGO_URI, {});
 
 const interactionSchema = new mongoose.Schema({
+  sessionId: String,
   userMessage: String,
   botMessage: String,
   npcName: String,
@@ -35,25 +36,54 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/chat', async (req, res) => {
-  const { message, npcName } = req.body;
+  const { message, npcName, sessionId } = req.body;
 
   try {
+    let conversation = [];
+    let session = sessionId;
+
+    if (session) {
+      // Retrieve the conversation history
+      conversation = await Interaction.find({ sessionId: session }).sort({ timestamp: 1 });
+    } else {
+      // Create a new session if none exists
+      session = uuidv4();
+    }
+
+    // Format the conversation context
+    const conversationContext = conversation.map(interaction => ({
+      role: "user",
+      content: `User: ${interaction.userMessage}\nNPC: ${interaction.botMessage}`
+    }));
+
+    // Add the new user message to the context
+    conversationContext.push({ role: "user", content: `User: ${message}` });
+
     const response = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20240620",
       max_tokens: 1024,
-      messages: [{ role: "user", content: `You are the ghost of an NPC named ${npcName} from the Laundry Files universe. Respond to the following message in character: ${message}` }],
+      messages: conversationContext,
     });
 
     console.log('Response: ', JSON.stringify(response));
 
     // Extract the bot message from the response
-    const botMessage = response.content[0].text;
-    const newInteraction = new Interaction({ userMessage: message, botMessage, npcName });
+    const botMessageContent = response.content[0].text;
+    if (!botMessageContent) {
+      throw new Error("Response content is undefined");
+    }
+
+    const newInteraction = new Interaction({
+      sessionId: session,
+      userMessage: message,
+      botMessageContent,
+      npcName
+    });
     await newInteraction.save();
 
-    res.json({ botMessage });
+    res.json({ botMessageContent, sessionId: session });
   } catch (error) {
-    console.error(error);
+    console.error('Error: ', error.message);
     res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });

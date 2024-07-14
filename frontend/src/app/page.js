@@ -17,7 +17,7 @@ export default function Home() {
 
     try {
       const response = await axios.post('http://localhost:3000/api/chat', { message, npcName });
-      const botMessage = { user: npcName, text: response.data.botMessage };
+      const botMessage = { user: npcName, text: response.data.botMessageContent };
       setChat([...chat, userMessage, botMessage]);
       setMessage('');
     } catch (error) {
