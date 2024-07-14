@@ -1,0 +1,76 @@
+body {
+    background-color: black;
+    color: green;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+  }
+  
+  .terminal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  h1 {
+    color: green;
+  }
+  
+  .chat-window {
+    border: 1px solid green;
+    padding: 10px;
+    height: 400px;
+    width: 80%;
+    overflow-y: scroll;
+    margin-bottom: 20px;
+  }
+  
+  .chat-message {
+    margin: 10px 0;
+  }
+  
+  .input-area {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 80%;
+  }
+  
+  .input-prompt {
+    color: green;
+    margin-right: 10px;
+  }
+  
+  .input-field {
+    background-color: black;
+    border: none;
+    border-bottom: 1px solid green;
+    color: green;
+    flex-grow: 1;
+    padding: 5px;
+  }
+  
+  .input-field:focus {
+    outline: none;
+  }
+  
+  input::placeholder {
+    color: green;
+  }
+  
+  input::selection {
+    background: green;
+    color: black;
+  }
+  
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  .input-field::after {
+    content: '_';
+    animation: blink 1s step-end infinite;
+  }
+  

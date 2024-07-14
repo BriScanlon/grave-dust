@@ -1,0 +1,30 @@
+version: '3'
+services:
+  backend:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - CLAUDE_API_KEY=$CLAUDE_API_KEY
+      - MONGO_URI=mongodb://mongo:27017/gravedust
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - '3001:3000'
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
