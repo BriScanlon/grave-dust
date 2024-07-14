@@ -6,10 +6,11 @@ services:
       - '3000:3000'
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - CLAUDE_API_KEY=$CLAUDE_API_KEY
       - MONGO_URI=mongodb://mongo:27017/gravedust
     depends_on:
       - mongo
+    networks:
+      - grave-dust-network
 
   frontend:
     build:
@@ -18,13 +19,21 @@ services:
       - '3001:3000'
     depends_on:
       - backend
+    networks:
+      - grave-dust-network
 
   mongo:
     image: mongo:latest
     ports:
-      - '27017:27017'
+      - '27017:27017'  # Change this line if needed for external access
     volumes:
       - mongo-data:/data/db
+    networks:
+      - grave-dust-network
 
 volumes:
   mongo-data:
+
+networks:
+  grave-dust-network:
+    external: true
