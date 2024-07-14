@@ -36,6 +36,8 @@ app.post('/api/chat', async (req, res) => {
       }
     });
 
+    console.log('Server response from Claude: ', JSON.stringify(response));
+
     const botMessage = response.data.choices[0].text.trim();
 
     const newInteraction = new Interaction({ userMessage: message, botMessage, npcName });
